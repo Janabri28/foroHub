@@ -2,6 +2,7 @@ package com.alura.foroHub.controller;
 
 import com.alura.foroHub.DTO.DatosActualizarTopico;
 import com.alura.foroHub.DTO.DatosListadoTopicos;
+import com.alura.foroHub.DTO.DatosRespuestaTopico;
 import com.alura.foroHub.DTO.DatosTopico;
 import com.alura.foroHub.INFRA.RespuestaService;
 import com.alura.foroHub.INFRA.TopicoService;
@@ -14,10 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 import com.alura.foroHub.repository.TopicoRepository;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
 
 
 @RestController
@@ -38,23 +43,27 @@ public class ControllerForo {
 
 
     @PostMapping
-        public void  registrarTopico(@RequestBody @Valid DatosTopico datosTopico)
+        public ResponseEntity <DatosRespuestaTopico> registrarTopico(@RequestBody @Valid DatosTopico datosTopico, UriComponentsBuilder uriComponentsBuilder)
         {
-            System.out.println(topicoService.vaciarDatos(datosTopico));
-            topicoRepository.save(new Topico((topicoService.vaciarDatos(datosTopico))));
+            Topico topico= topicoRepository.save(new Topico((topicoService.vaciarDatos(datosTopico))));
+            DatosRespuestaTopico datosRespuestaTopico = new DatosRespuestaTopico(topico.getIdTopico(), topico.getTitulo(), topico.getMensaje(), topico.getFechaCreacion(),
+                    topico.isStatus());
+            URI url = uriComponentsBuilder.path("/topicos/{id}").buildAndExpand(topico.getIdTopico()).toUri();
+            return ResponseEntity.created(url).body(datosRespuestaTopico);
         }
 
 
     @GetMapping
-    public Page<DatosListadoTopicos> listadoTopicos(@PageableDefault(size=5) Pageable paginacion){
-        return topicoRepository.findAll(paginacion).map(DatosListadoTopicos::new);
+    public ResponseEntity<Page<DatosListadoTopicos>> listadoTopicos(@PageableDefault(size=5) Pageable paginacion){
+        return ResponseEntity.ok(topicoRepository.findAll(paginacion).map(DatosListadoTopicos::new));
     }
 
 
     @GetMapping("/{id}")
-    public DatosListadoTopicos obtenerPorId(@PathVariable Long id){
+    public ResponseEntity<DatosListadoTopicos> obtenerPorId(@PathVariable Long id){
         Topico topico= topicoRepository.getReferenceById(id);
-        return topicoService.obtenerPorId(id);
+        var datosTopico= new DatosListadoTopicos(topico.getIdTopico(),topico.getTitulo(), topico.getMensaje(), topico.getFechaCreacion(),topico.getAutor().getNombre().toString());
+        return ResponseEntity.ok(datosTopico);
     }
 
     /*
@@ -68,18 +77,21 @@ public class ControllerForo {
 */
     @DeleteMapping("/{id}")
      @Transactional
-     public void BorradoTopico(@PathVariable Long id) {
+     public ResponseEntity BorradoTopico(@PathVariable Long id) {
         Topico topico = topicoRepository.getReferenceById(id);
         topicoRepository.delete(topico);
+        return ResponseEntity.noContent().build(); //Devolver respuesta 204
     }
 
 
 
     @PutMapping
-    @Transactional //Cuando el metodo se termine de ejecutar se ejecuta a nivel base de datos. paso 20.
-    public void actualizaTopico(@RequestBody @Valid DatosActualizarTopico datosActualizarTopico){
+    @Transactional
+    public ResponseEntity actualizaTopico(@RequestBody @Valid DatosActualizarTopico datosActualizarTopico){
         Topico topico=topicoRepository.getReferenceById(datosActualizarTopico.idTopico());
         topico.actualizarDatos(datosActualizarTopico);
+        return ResponseEntity.ok(new DatosRespuestaTopico(topico.getIdTopico(), topico.getTitulo(), topico.getMensaje(), topico.getFechaCreacion(),
+                topico.isStatus()));
     }
 
 

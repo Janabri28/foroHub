@@ -24,7 +24,10 @@ public class Topico {
     @Column(name="id_topico")
     private Long idTopico;
 
+    @Column(unique = true)
     private String titulo;
+
+    @Column(unique = true)
     private String mensaje;
     @Column(name="fecha_creacion")
     private String fechaCreacion;

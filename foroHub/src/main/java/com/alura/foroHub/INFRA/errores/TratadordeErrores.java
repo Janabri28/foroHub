@@ -1,15 +1,40 @@
 package com.alura.foroHub.INFRA.errores;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@RestControllerAdvice
 public class TratadordeErrores {
 
-//
-//    @ExceptionHandler(ValidacionDeDatos.class)
-//    public ResponseEntity errorHandlerValidacionDeDatos(Exception e){
-//        return ResponseEntity.badRequest().body(e.getMessage());
-//    }
-//
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity tratarError404() {         //retornar una respuesta 404 Not Found.
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity tratarError400(MethodArgumentNotValidException e) {         //Tratando un BadRequest o datos faltantes en un formulario
+        var errores = e.getFieldErrors().stream().map(DatosErrorValidacion::new).toList();
+        return ResponseEntity.badRequest().body(errores);
+    }
+
+
+    private record DatosErrorValidacion(String campo,String error){
+        public DatosErrorValidacion(FieldError error){
+            this(error.getField(),error.getDefaultMessage());
+        }
+    }
+
+
+    @ExceptionHandler(ValidacionIntegridad.class)
+    public ResponseEntity tratarError403(ValidacionIntegridad e) {
+       var errores = e.getMessage();
+   //     var errores = e.getFieldErrors().stream().map(DatosErrorValidacion::new).toList();
+        return ResponseEntity.badRequest().body(errores);
+    }
+
 
 }

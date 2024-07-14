@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
-public record DatosActualizarTopico(  //RESPUESTA
+public record DatosActualizarTopico(
                                       @NotNull
                                        Long idTopico,
        boolean status,

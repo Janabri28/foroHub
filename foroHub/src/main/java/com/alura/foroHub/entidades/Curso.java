@@ -22,8 +22,6 @@ public class Curso {
     @Column(name="name")
     private String name;
 
-
-  //  @Enumerated(EnumType.STRING)
     private String categoria;
 
 }

@@ -1,19 +1,9 @@
 package com.alura.foroHub.INFRA;
 
-import com.alura.foroHub.DTO.DatosActualizarTopico;
-import com.alura.foroHub.INFRA.errores.ValidationDatos;
-import com.alura.foroHub.entidades.Autor;
-import com.alura.foroHub.entidades.Respuesta;
-import com.alura.foroHub.entidades.Topico;
 import com.alura.foroHub.repository.AutorRepository;
 import com.alura.foroHub.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RespuestaService {
