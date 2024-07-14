@@ -1,5 +1,6 @@
 package com.alura.foroHub.INFRA.errores;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -32,7 +33,13 @@ public class TratadordeErrores {
     @ExceptionHandler(ValidacionIntegridad.class)
     public ResponseEntity tratarError403(ValidacionIntegridad e) {
        var errores = e.getMessage();
-   //     var errores = e.getFieldErrors().stream().map(DatosErrorValidacion::new).toList();
+        return ResponseEntity.badRequest().body(errores);
+    }
+
+
+    @ExceptionHandler( TokenExpiredException.class)
+    public ResponseEntity expiroToken( TokenExpiredException e) {
+        var errores = e.getMessage();
         return ResponseEntity.badRequest().body(errores);
     }
 

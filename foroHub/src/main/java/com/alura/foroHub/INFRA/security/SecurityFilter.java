@@ -30,6 +30,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         var authHeader = request.getHeader("Authorization");
         if(authHeader !=null){
             var token= authHeader.replace("Bearer ", "");
+            try{
             var nombreUsuario=tokenService.getSubject(token);
             if(nombreUsuario != null){
 
@@ -37,7 +38,9 @@ public class SecurityFilter extends OncePerRequestFilter {
                 var authentication= new UsernamePasswordAuthenticationToken(usuario, null,
                         usuario.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
+            }}catch (Exception e){
+                System.out.println("No tiene token, use login para actualizar el token y peguelo en  el header de su solicitud");}
+
 
         }
         filterChain.doFilter(request, response);
